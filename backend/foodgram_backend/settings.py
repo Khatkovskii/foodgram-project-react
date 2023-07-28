@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'users.apps.UsersConfig',
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -101,7 +102,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    "DEFAULT_PAGINATION_CLASS": "api.pagination.PageLimitPagination",
+    # "DEFAULT_PAGINATION_CLASS": "api.pagination.PageLimitPagination",
 }
 
 DJOSER = {
