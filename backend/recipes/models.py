@@ -1,6 +1,8 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from users.models import User
+from api.params import MIN_AMOUNT, MAX_AMOUNT
 
 
 class Ingredient(models.Model):
@@ -62,4 +64,42 @@ class Recipe(models.Model):
 
     def __str__(self) -> str:
         return f'{self.name} автор {self.author.username}'
+
+class IngredientAmount(models.Model):
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name='ingredient_amount',
+        verbose_name='Ингридиент'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='ingredient_amount',
+        verbose_name='Рецепт'
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество',
+        default=MIN_AMOUNT,
+        validators=[
+            MinValueValidator(
+                MIN_AMOUNT,
+                'Минимальное количество ингридиентов: '
+                f'{MIN_AMOUNT}'
+            ),
+            MaxValueValidator(
+                MAX_AMOUNT,
+                'Максимальное количество ингридиентов: '
+                f'{MAX_AMOUNT}'
+            )
+        ]
         
+    )
+    
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Ингридиент'
+        verbose_name_plural = 'Ингридиенты'
+    
+    def __str__(self) -> str:
+        return f'{self.ingredient}: {self.amount}'
