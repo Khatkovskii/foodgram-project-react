@@ -9,10 +9,11 @@ class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
         blank=False,
+        db_index=False,
         verbose_name='Ингридиент'
     )
     unit = models.CharField(
-        max_length=10,
+        max_length=200,
         blank=False,
         verbose_name='Единица измерения'
     )

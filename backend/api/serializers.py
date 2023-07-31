@@ -46,13 +46,13 @@ class UserReadSerializer(UserSerializer):
         fields = ('id', 'email', 'username', 'first_name', 'last_name')
 
 
-class IngridientSerializer(serializers.ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
     '''Сериализатор для ингредиентов'''
     
     class Meta:
         model = Ingredient
         fields = '__all__'
-        read_only_fields = '__all__'
+        read_only_fields = '__all__',
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
     '''Сериализатор колличества ингридиентов'''
