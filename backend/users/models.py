@@ -7,12 +7,12 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name',)
     
-    ANON = 'anon'
+    GUEST = 'guest'
     AUTHORIZED = 'authorized'
     ADMIN = 'admin'
     
     CHOICE_ROLE = (
-        (ANON, 'анонимный'),
+        (GUEST, 'гость'),
         (AUTHORIZED, 'авторизованный'),
         (ADMIN, 'админ'),
     )

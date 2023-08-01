@@ -46,6 +46,36 @@ class UserReadSerializer(UserSerializer):
         fields = ('id', 'email', 'username', 'first_name', 'last_name')
 
 
+class SetPasswordSerializer(serializers.Serializer):
+    '''Сериализатор изменения пароля'''
+    current_password = serializers.CharField()
+    new_password = serializers.CharField()
+    
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
+    
+    def update(self, instance, validated_data):
+        current_password = validated_data.get('current_password')
+        new_password = validated_data.get('new_password')
+        if not instance.check_password(current_password):
+            raise serializers.ValidationError(
+                {
+                    'current_password': 'Пароль неверный'
+                }
+            )
+        if current_password == new_password:
+            raise serializers.ValidationError(
+                {
+                    'new_password': 'Новый пароль должен отличаться'
+                                    'от предидущего'
+                }
+            )
+        instance.set_password(new_password)
+        instance.save()
+        return validated_data
+
+
 class IngredientSerializer(serializers.ModelSerializer):
     '''Сериализатор для ингредиентов'''
     
