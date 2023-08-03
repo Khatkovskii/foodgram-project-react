@@ -27,6 +27,30 @@ class Ingredient(models.Model):
         return f'{self.name}, {self.unit}'
 
 
+class Tag(models.Model):
+    name = models.CharField(
+        max_length=100,
+        db_index=True,
+        unique=True
+    )
+    color = models.CharField(
+        max_length=10,
+        verbose_name='Цвет HEX код'
+    )
+    slug = models.SlugField(
+        unique=True,
+        db_index=True
+    )
+    
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+    
+    def __str__(self):
+        return self.name
+
+
 class Recipe(models.Model):
     name = models.CharField(
         max_length=255,
@@ -55,6 +79,11 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата публикации'
+    )
+    tags = models.ManyToManyField(
+        Tag,
+        related_name='recipes',
+        verbose_name='Тег'
     )
     
     class Meta:

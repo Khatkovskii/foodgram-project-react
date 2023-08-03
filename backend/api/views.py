@@ -6,9 +6,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
 
-from .serializers import UserCreateSerializer, UserReadSerializer, SetPasswordSerializer, RecipeSerializer, IngredientSerializer, IngredientAmountSerializer
+from .serializers import UserCreateSerializer, UserReadSerializer, SetPasswordSerializer, RecipeSerializer, IngredientSerializer, IngredientAmountSerializer, TagSerializer
 from users.models import User
-from recipes.models import Recipe, Ingredient, IngredientAmount
+from recipes.models import Recipe, Ingredient, IngredientAmount, Tag
 
 
 class UserViewSet(mixins.CreateModelMixin,
@@ -50,7 +50,7 @@ class UserViewSet(mixins.CreateModelMixin,
         serializer = self.get_serializer(user, data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({'detail': 'Пароль успешно изменен'},
+        return Response('Пароль успешно изменен',
                         status=status.HTTP_200_OK)
 
 
@@ -61,3 +61,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+
+class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
