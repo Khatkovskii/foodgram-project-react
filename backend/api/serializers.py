@@ -94,8 +94,8 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
         source='ingredient.name',
         read_only=True
     )
-    unit = serializers.CharField(
-        source='ingredient.unit',
+    measurement_unit = serializers.CharField(
+        source='ingredient.measurement_unit',
         read_only=True
     )
     amount = serializers.IntegerField(
@@ -141,7 +141,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = (
             'id', 'author', 'ingredients', 'name',
-            'image', 'text', 'tags'
+            'image', 'text', 'tags', 'cooking_time'
         )
 
 
@@ -155,7 +155,7 @@ class RecipeCreateSerializer(RecipeSerializer):
         model = Recipe
         fields = (
             'id', 'author', 'ingredients', 'name', 'text', 'image',
-            'tags' 
+            'tags', 'cooking_time'
         )
     
     @staticmethod

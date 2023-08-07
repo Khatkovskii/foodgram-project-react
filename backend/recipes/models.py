@@ -12,7 +12,7 @@ class Ingredient(models.Model):
         db_index=False,
         verbose_name='Ингридиент'
     )
-    unit = models.CharField(
+    measurement_unit = models.CharField(
         max_length=200,
         blank=False,
         verbose_name='Единица измерения'
@@ -29,15 +29,16 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=100,
+        max_length=200,
         db_index=True,
         unique=True
     )
     color = models.CharField(
-        max_length=10,
+        max_length=7,
         verbose_name='Цвет HEX код'
     )
     slug = models.SlugField(
+        max_length=200,
         unique=True,
         db_index=True
     )
@@ -84,6 +85,10 @@ class Recipe(models.Model):
         Tag,
         related_name='recipes',
         verbose_name='Тег'
+    )
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name='Время приготовления',
+        default=1
     )
     
     class Meta:
