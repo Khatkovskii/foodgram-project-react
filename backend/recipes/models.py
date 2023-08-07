@@ -73,7 +73,7 @@ class Recipe(models.Model):
         upload_to='recipes/images',
         verbose_name='Фото'
     )
-    description = models.TextField(
+    text = models.TextField(
         verbose_name='Описание'
     )
     pub_date = models.DateTimeField(
@@ -99,13 +99,13 @@ class IngredientAmount(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredient_amount',
+        related_name='ingredients_amount',
         verbose_name='Ингридиент'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredient_amount',
+        related_name='ingredients_amount',
         verbose_name='Рецепт'
     )
     amount = models.PositiveSmallIntegerField(

@@ -124,7 +124,7 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        read_only_fields = '__all__'
+        read_only_fields = ('__all__',)
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -132,7 +132,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = UserReadSerializer(read_only=True)
     ingredients = IngredientAmountSerializer(
          many=True,
-         source='ingredient_amount'
+         source='ingredients_amount'
     )
     image = serializers.ImageField(required=False, allow_null=True)
     tags = TagSerializer(read_only=True, many=True)
@@ -141,7 +141,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = (
             'id', 'author', 'ingredients', 'name',
-            'image', 'description', 'tags'
+            'image', 'text', 'tags'
         )
 
 
@@ -154,29 +154,29 @@ class RecipeCreateSerializer(RecipeSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'ingridients', 'name', 'description', 'image',
+            'id', 'author', 'ingredients', 'name', 'text', 'image',
             'tags' 
         )
     
     @staticmethod
-    def ingridient_save(recipe, ingridients):
-        ingridients_list = []
-        for ingridient in ingridients:
-            curent_ingridient = ingridient['ingredient']['id']
-            curent_amount = ingridient.get('amount')
-            ingridients_list.append(IngredientAmount(
+    def ingredient_save(recipe, ingredients):
+        ingredients_list = []
+        for ingredient in ingredients:
+            curent_ingredient = ingredient['ingredient']['id']
+            curent_amount = ingredient.get('amount')
+            ingredients_list.append(IngredientAmount(
                 recipe=recipe,
-                ingridient=curent_ingridient,
+                ingredient=curent_ingredient,
                 amount=curent_amount
             ))
-        IngredientAmount.objects.bulk_create(ingridients_list)
+        IngredientAmount.objects.bulk_create(ingredients_list)
     
     def create(self, validated_data):
         author = self.context.get('request').user
-        ingridients = validated_data.pop('ingridients_amount')
+        ingredients = validated_data.pop('ingredients_amount')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(validated_data, author=author)
-        self.ingridient_save(recipe, ingridients)
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        self.ingredient_save(recipe, ingredients)
         recipe.tags.add(*tags)
         return recipe
     
