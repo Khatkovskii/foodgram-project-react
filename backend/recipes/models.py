@@ -88,7 +88,8 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
-        default=1
+        validators=[MinValueValidator(MIN_AMOUNT, f'Минимум {MIN_AMOUNT} минута')],
+        default=MIN_AMOUNT
     )
     
     class Meta:
@@ -96,9 +97,9 @@ class Recipe(models.Model):
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
-
     def __str__(self) -> str:
         return f'{self.name} автор {self.author.username}'
+
 
 class IngredientAmount(models.Model):
     ingredient = models.ForeignKey(

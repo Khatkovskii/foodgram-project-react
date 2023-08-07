@@ -115,7 +115,7 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = IngredientAmount
-        fields = ('id', 'name', 'unit', 'amount')
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class TagSerializer(serializers.ModelSerializer):
