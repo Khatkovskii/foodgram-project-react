@@ -1,14 +1,15 @@
 from django.shortcuts import render
 
-
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
 
 from .serializers import UserCreateSerializer, UserReadSerializer, SetPasswordSerializer, RecipeSerializer, IngredientSerializer, IngredientAmountSerializer, TagSerializer, RecipeCreateSerializer
+from .permissions import AdminOrReadOnly, AuthorOrAdminOrReadOnly
 from users.models import User
 from recipes.models import Recipe, Ingredient, IngredientAmount, Tag
+
 
 
 class UserViewSet(mixins.CreateModelMixin,
@@ -57,18 +58,21 @@ class UserViewSet(mixins.CreateModelMixin,
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    permission_classes = (AdminOrReadOnly,)
 
 
 class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (AdminOrReadOnly,)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    permission_classes = (AuthorOrAdminOrReadOnly,)
     
     def get_serializer_class(self):
-        if self.action in ('create'):
+        if self.action in ('create', 'partial_update'):
             return RecipeCreateSerializer
         return RecipeSerializer

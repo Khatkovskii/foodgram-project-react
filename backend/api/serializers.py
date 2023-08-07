@@ -169,6 +169,7 @@ class RecipeCreateSerializer(RecipeSerializer):
                 ingredient=curent_ingredient,
                 amount=curent_amount
             ))
+        IngredientAmount.objects.filter(recipe=recipe).delete()
         IngredientAmount.objects.bulk_create(ingredients_list)
     
     def create(self, validated_data):
@@ -179,4 +180,18 @@ class RecipeCreateSerializer(RecipeSerializer):
         self.ingredient_save(recipe, ingredients)
         recipe.tags.add(*tags)
         return recipe
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.image = validated_data.get('image', instance.image)
+        instance.cooking_time = validated_data.get('cooking_time', instance.cooking_time)
+        tags = validated_data.get('tags')
+        if tags is not None:
+            instance.tags.set(tags)
+        ingredients = validated_data.get('ingredients_amount')
+        if ingredients is not None:
+            IngredientAmount.objects.filter(recipe=instance).delete()
+            self.ingredient_save(instance, ingredients)
+        instance.save()
+        return instance
     
