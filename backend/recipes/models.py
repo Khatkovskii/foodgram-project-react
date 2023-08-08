@@ -6,6 +6,7 @@ from api.params import MIN_AMOUNT, MAX_AMOUNT
 
 
 class Ingredient(models.Model):
+    '''Модель ингридиента'''
     name = models.CharField(
         max_length=200,
         blank=False,
@@ -28,6 +29,7 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
+    '''Модель тэгов'''
     name = models.CharField(
         max_length=200,
         db_index=True,
@@ -53,6 +55,7 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
+    '''Модель рецептов'''
     name = models.CharField(
         max_length=255,
         db_index=True,
@@ -102,6 +105,7 @@ class Recipe(models.Model):
 
 
 class IngredientAmount(models.Model):
+    '''Модель количества ингридиетов'''
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -139,3 +143,28 @@ class IngredientAmount(models.Model):
     
     def __str__(self) -> str:
         return f'{self.ingredient}: {self.amount}'
+
+class Favorite(models.Model):
+    '''Модель избранных рецептов'''
+    recipe = models.ForeignKey(
+        Recipe,
+        verbose_name='Рецепт',
+        related_name='favorite',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        verbose_name='Пользователь',
+        related_name='favorite',
+        on_delete=models.CASCADE,
+    )
+    add_date = models.DateField(
+        verbose_name='Дата добавления',
+        editable=False,
+        auto_now_add=True,
+    )
+    
+    class Meta:
+        ordering = ('user',)
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранные'
