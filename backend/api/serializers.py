@@ -180,6 +180,7 @@ class RecipeCreateSerializer(RecipeSerializer):
         self.ingredient_save(recipe, ingredients)
         recipe.tags.add(*tags)
         return recipe
+    
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
@@ -206,3 +207,16 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ('user', 'recipe')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=('user', 'recipe'),
+                message='Рецепт уже в избранном',
+            )
+        ]
+
+class RecipeMiniSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')

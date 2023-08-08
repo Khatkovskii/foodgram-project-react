@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
 
-from .serializers import UserCreateSerializer, UserReadSerializer, SetPasswordSerializer, RecipeSerializer, IngredientSerializer, IngredientAmountSerializer, TagSerializer, RecipeCreateSerializer, FavoriteSerializer
+from .serializers import UserCreateSerializer, UserReadSerializer, SetPasswordSerializer, RecipeSerializer, IngredientSerializer, IngredientAmountSerializer, TagSerializer, RecipeCreateSerializer, FavoriteSerializer, RecipeMiniSerializer
 from .permissions import AdminOrReadOnly, AuthorOrAdminOrReadOnly
 from .paginator import LimitedPagination
 from users.models import User
@@ -79,6 +79,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return RecipeCreateSerializer
+        if self.action in ('favorite',):
+            return RecipeMiniSerializer
         return RecipeSerializer
     
     @action(
