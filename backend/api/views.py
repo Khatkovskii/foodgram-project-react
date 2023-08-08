@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -80,10 +80,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in ('create', 'partial_update'):
             return RecipeCreateSerializer
         return RecipeSerializer
-
-
-class FavoriteViewSet(viewsets.ModelViewSet):
-    queryset = Favorite.objects.all()
-    serializer_class = FavoriteSerializer
-    permission_classes = (IsAuthenticated,)
-    pagination_class = None
+    
+    @action(
+        detail=True,
+        methods=['POST'],
+        permission_classes=[AuthorOrAdminOrReadOnly,]
+    )
+    def favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        data = {
+            'user': request.user.pk,
+            'recipe': recipe.pk
+        }
+        serializer = FavoriteSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        serializer = self.get_serializer(recipe)
+        return Response(serializer.data, status=status.HTTP_200_OK)
