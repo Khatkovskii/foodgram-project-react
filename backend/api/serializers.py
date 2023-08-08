@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import User
-from recipes.models import Recipe, Ingredient, IngredientAmount, Tag
+from recipes.models import Recipe, Ingredient, IngredientAmount, Tag, Favorite
 from .params import MIN_AMOUNT, MAX_AMOUNT
 
 
@@ -194,4 +194,15 @@ class RecipeCreateSerializer(RecipeSerializer):
             self.ingredient_save(instance, ingredients)
         instance.save()
         return instance
-    
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all()
+    )
+    recipe = serializers.PrimaryKeyRelatedField(
+        queryset=Recipe.objects.all()
+    )
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
