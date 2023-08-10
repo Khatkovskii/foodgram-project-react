@@ -168,3 +168,28 @@ class Favorite(models.Model):
         ordering = ('user',)
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
+
+
+class Cart(models.Model):
+    '''Модель корзины покупок'''
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        related_name='cart'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        related_name='cart'
+    )
+    add_date = models.DateField(
+        verbose_name='Дата добавления',
+        editable=False,
+        auto_now_add=True,
+    )
+    
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Корзина'
