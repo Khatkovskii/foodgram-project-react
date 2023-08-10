@@ -79,7 +79,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return RecipeCreateSerializer
-        if self.action in ('favorite',):
+        if self.action in ('favorite', 'favorite_delete'):
             return RecipeMiniSerializer
         return RecipeSerializer
     
@@ -99,3 +99,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save()
         serializer = self.get_serializer(recipe)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @favorite.mapping.delete
+    def favorite_delete(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        Favorite.objects.filter(user=request.user, recipe=recipe).delete()
+        return Response('Рецепт успешно удален', status=status.HTTP_204_NO_CONTENT)
