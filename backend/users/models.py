@@ -44,3 +44,26 @@ class User(AbstractUser):
     def __str__(self) -> str:
         return self.username
 
+
+class Follow(models.Model):
+    '''Модель подписки на пользователя'''
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Подписчик',
+        related_name='follower'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+        related_name='following'
+    )
+    
+    class Meta:
+        ordering = ('user', 'author')
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+    
+    def __str__(self) -> str:
+        return f'{self.user.username} подписан на {self.author.username}'

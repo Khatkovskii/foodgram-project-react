@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import User
-from recipes.models import Recipe, Ingredient, IngredientAmount, Tag, Favorite
+from recipes.models import Recipe, Ingredient, IngredientAmount, Tag, Favorite, Cart
 from .params import MIN_AMOUNT, MAX_AMOUNT
 
 
@@ -146,6 +146,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(RecipeSerializer):
+    '''Сериализатор создания и обновления рецепта'''
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True
@@ -198,6 +199,7 @@ class RecipeCreateSerializer(RecipeSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
+    '''Сериализатор избранных рецептов'''
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )
@@ -216,6 +218,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
         ]
 
 class RecipeMiniSerializer(serializers.ModelSerializer):
+    '''Мини сериалитор для добавления рецепта в избранное'''
     
     class Meta:
         model = Recipe
@@ -223,9 +226,21 @@ class RecipeMiniSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
+    '''Сериализатор корзины покупок'''
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )
     recipe = serializers.PrimaryKeyRelatedField(
         queryset=Recipe.objects.all()
     )
+    
+    class Meta:
+        model = Cart
+        fields = ('user', 'recipe')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Cart.objects.all(),
+                fields=('user', 'recipe'),
+                message='Рецепт уже в корзине'
+            )
+        ]
