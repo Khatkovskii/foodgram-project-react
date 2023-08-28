@@ -1,4 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
+from django.db.models import F, Sum
+from django.http import HttpResponse
 
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -128,3 +130,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=pk)
         Cart.objects.filter(user=request.user, recipe=recipe).delete()
         return Response ('Рецепт успешно удален', status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False,
+        methods=['GET'],
+        permission_classes=[IsAuthenticated]
+    )
+    def download_shopping_cart(self, request):
+        ingredients = IngredientAmount.objects.filter(
+            recipe__cart__user=request.user).values(
+            name=F('ingredient__name'),
+            measurement_unit=F('ingredient__measurement_unit')).annotate(
+            amount=Sum('amount')
+        )
+        shopping_list = []
+        for ingr in ingredients:
+            shopping_list.append(
+                f'{ingr["name"]} '
+                f'{ingr["amount"]} '
+                f'{ingr["measurement_unit"]}'
+            )
+            shopping_list_text = f'Список покупок {self.request.user}:\n\n' + '\n'.join(shopping_list)
+            filename = f'{self.request.user}_shopping_list.txt'
+            request = HttpResponse(shopping_list_text, content_type='text/plain')
+            request['Content-Disposition'] = f'attachment; filename={filename}'
+        return request
