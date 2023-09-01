@@ -10,7 +10,7 @@ class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
         blank=False,
-        db_index=False,
+        db_index=True,
         verbose_name='Ингридиент'
     )
     measurement_unit = models.CharField(
@@ -37,7 +37,8 @@ class Tag(models.Model):
     )
     color = models.CharField(
         max_length=7,
-        verbose_name='Цвет HEX код'
+        verbose_name='Цвет HEX код',
+        unique=True
     )
     slug = models.SlugField(
         max_length=200,
@@ -57,7 +58,7 @@ class Tag(models.Model):
 class Recipe(models.Model):
     '''Модель рецептов'''
     name = models.CharField(
-        max_length=255,
+        max_length=200,
         db_index=True,
         verbose_name='Рецепт'
     )
@@ -73,7 +74,7 @@ class Recipe(models.Model):
         verbose_name='Список ингридиентов',
     )
     image = models.ImageField(
-        blank=True,
+        blank=False,
         upload_to='recipes/images',
         verbose_name='Фото'
     )

@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-ntu&kccc5$l7be_xa*&%1xi*ake*=7deb8ixu&w@l8es7-6xc1
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost',]
 
 
 INSTALLED_APPS = [
@@ -59,10 +59,14 @@ WSGI_APPLICATION = 'foodgram_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'foodgram'),
+        'USER': os.getenv('POSTGRES_USER', 'foodgram_user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
-}
+} 
 
 AUTH_USER_MODEL = 'users.User'
 AUTH_PASSWORD_VALIDATORS = [
@@ -93,6 +97,10 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'collected_static'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

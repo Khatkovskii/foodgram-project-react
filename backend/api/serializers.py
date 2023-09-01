@@ -1,5 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import MinValueValidator, MaxValueValidator
+from drf_extra_fields.fields import Base64ImageField
 
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
@@ -134,14 +135,16 @@ class RecipeSerializer(serializers.ModelSerializer):
          many=True,
          source='ingredients_amount'
     )
-    image = serializers.ImageField(required=False, allow_null=True)
+    image = Base64ImageField(required=False, allow_null=True)
     tags = TagSerializer(read_only=True, many=True)
+    # is_favorited = serializers.BooleanField(read_only=True)
+    # is_in_shopping_cart = serializers.BooleanField(read_only=True)
     
     class Meta:
         model = Recipe
         fields = (
             'id', 'author', 'ingredients', 'name',
-            'image', 'text', 'tags', 'cooking_time'
+            'image', 'text', 'tags', 'cooking_time',
         )
 
 
