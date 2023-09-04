@@ -55,6 +55,25 @@ class Tag(models.Model):
         return self.name
 
 
+class NewQuerySet(models.QuerySet):
+    """Новый QuerySet для работы с избранным и списком покупок"""
+    def add_annotations(self, user_id):
+        return self.annotate(
+            is_favorited=models.Exists(
+                Favorite.objects.filter(
+                    recipe__pk=models.OuterRef('pk'),
+                    user_id=user_id
+                )
+            ),
+            is_in_shopping_cart=models.Exists(
+                Cart.objects.filter(
+                    recipe__pk=models.OuterRef('pk'),
+                    user_id=user_id
+                )
+            )
+        )
+    
+    
 class Recipe(models.Model):
     '''Модель рецептов'''
     name = models.CharField(
@@ -95,6 +114,7 @@ class Recipe(models.Model):
         validators=[MinValueValidator(MIN_AMOUNT, f'Минимум {MIN_AMOUNT} минута')],
         default=MIN_AMOUNT
     )
+    objects = NewQuerySet.as_manager()
     
     class Meta:
         ordering = ('-pub_date',)

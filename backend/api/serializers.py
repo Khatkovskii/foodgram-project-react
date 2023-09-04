@@ -137,14 +137,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     )
     image = Base64ImageField(required=False, allow_null=True)
     tags = TagSerializer(read_only=True, many=True)
-    # is_favorited = serializers.BooleanField(read_only=True)
-    # is_in_shopping_cart = serializers.BooleanField(read_only=True)
+    is_favorited = serializers.BooleanField(read_only=True)
+    is_in_shopping_cart = serializers.BooleanField(read_only=True)
     
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'ingredients', 'name',
-            'image', 'text', 'tags', 'cooking_time',
+            'id', 'author', 'ingredients', 'name','is_favorited', 
+            'is_in_shopping_cart', 'image', 'text', 'tags', 'cooking_time'
         )
 
 
@@ -159,7 +159,7 @@ class RecipeCreateSerializer(RecipeSerializer):
         model = Recipe
         fields = (
             'id', 'author', 'ingredients', 'name', 'text', 'image',
-            'tags', 'cooking_time'
+            'tags', 'cooking_time','is_favorited', 'is_in_shopping_cart'
         )
     
     @staticmethod
@@ -199,15 +199,35 @@ class RecipeCreateSerializer(RecipeSerializer):
             self.ingredient_save(instance, ingredients)
         instance.save()
         return instance
+    
+    def validate(self, data):
+        ingredients_list = []
+        ingredients_amount = data.get('ingredients_amount')
+        if not ingredients_amount:
+            raise serializers.ValidationError(
+                'Минимум 1 игридиент необходим'
+            )
+        for ingredient in ingredients_amount:
+            ingredients_list.append(ingredient['ingredient']['id'])
+        if len(ingredients_list) > len(set(ingredients_list)):
+            raise serializers.ValidationError(
+                {'error': 'Ингредиенты должны быть уникальными'}
+            )
+        return data
+
+    def to_representation(self, instance):
+        return RecipeSerializer(instance, context=self.context).data
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
     '''Сериализатор избранных рецептов'''
     user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all()
+        queryset=User.objects.all(),
+        write_only=True
     )
     recipe = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all()
+        queryset=Recipe.objects.all(),
+        write_only=True
     )
     class Meta:
         model = Favorite
@@ -231,10 +251,12 @@ class RecipeMiniSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     '''Сериализатор корзины покупок'''
     user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all()
+        queryset=User.objects.all(),
+        write_only=True
     )
     recipe = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all()
+        queryset=Recipe.objects.all(),
+        write_only=True
     )
     
     class Meta:

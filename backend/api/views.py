@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import F, Sum
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -10,6 +11,7 @@ from rest_framework import status, viewsets, mixins
 from .serializers import UserCreateSerializer, UserReadSerializer, SetPasswordSerializer, RecipeSerializer, IngredientSerializer, IngredientAmountSerializer, TagSerializer, RecipeCreateSerializer, FavoriteSerializer, RecipeMiniSerializer, CartSerializer
 from .permissions import AdminOrReadOnly, AuthorOrAdminOrReadOnly
 from .paginator import LimitedPagination
+from .filters import RecipeFilterSet
 from users.models import User
 from recipes.models import Recipe, Ingredient, IngredientAmount, Tag, Favorite, Cart
 
@@ -77,13 +79,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     permission_classes = (AuthorOrAdminOrReadOnly,)
     pagination_class = LimitedPagination
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = RecipeFilterSet
+    filterset_class = RecipeFilterSet
     
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return RecipeCreateSerializer
-        if self.action in ('favorite', 'cart'):
+        if self.action in ('favorite', 'shopping_cart'):
             return RecipeMiniSerializer
         return RecipeSerializer
+    
+    def get_queryset(self):
+        user_id = self.request.user.pk
+        return Recipe.objects.add_annotations(user_id)
     
     @action(
         detail=True,
@@ -150,8 +159,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 f'{ingr["amount"]} '
                 f'{ingr["measurement_unit"]}'
             )
-            shopping_list_text = f'Список покупок {self.request.user}:\n\n' + '\n'.join(shopping_list)
-            filename = f'{self.request.user}_shopping_list.txt'
-            request = HttpResponse(shopping_list_text, content_type='text/plain')
-            request['Content-Disposition'] = f'attachment; filename={filename}'
+        shopping_list_text = f'Список покупок {self.request.user}:\n\n' + '\n'.join(shopping_list)
+        filename = f'{self.request.user}_shopping_list.txt'
+        request = HttpResponse(shopping_list_text, content_type='text/plain')
+        request['Content-Disposition'] = f'attachment; filename={filename}'
         return request
