@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status, viewsets, mixins
 
-from .serializers import UserCreateSerializer, UserReadSerializer, SetPasswordSerializer, RecipeSerializer, IngredientSerializer, IngredientAmountSerializer, TagSerializer, RecipeCreateSerializer, FavoriteSerializer, RecipeMiniSerializer, CartSerializer, FollowAuthorSerializer
+from .serializers import UserCreateSerializer, UserReadSerializer, SetPasswordSerializer, RecipeSerializer, IngredientSerializer, IngredientAmountSerializer, TagSerializer, RecipeCreateSerializer, FavoriteSerializer, RecipeMiniSerializer, CartSerializer, FollowAuthorSerializer, FollowListSerializer
 from .permissions import AdminOrReadOnly, AuthorOrAdminOrReadOnly
 from .paginator import LimitedPagination
 from .filters import RecipeFilterSet
@@ -83,7 +83,11 @@ class UserViewSet(mixins.CreateModelMixin,
         permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
-        pass
+        queryset = User.objects.filter(following__user=request.user)
+        pagin = self.paginate_queryset(queryset)
+        serializer = FollowListSerializer(pagin, context={'request': request}, many=True)
+        return self.get_paginated_response(serializer.data)
+        
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -180,13 +184,37 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         shopping_list = []
         for ingr in ingredients:
-            shopping_list.append(
-                f'{ingr["name"]} '
-                f'{ingr["amount"]} '
-                f'{ingr["measurement_unit"]}'
-            )
-        shopping_list_text = f'Список покупок {self.request.user}:\n\n' + '\n'.join(shopping_list)
-        filename = f'{self.request.user}_shopping_list.txt'
-        request = HttpResponse(shopping_list_text, content_type='text/plain')
-        request['Content-Disposition'] = f'attachment; filename={filename}'
-        return request
+            if ingr['name'] in [item.split(' ')[0] for item in shopping_list]:
+            # Ингредиент уже есть в списке покупок, нужно обновить его количество
+                for item in shopping_list:
+                    if item.split(' ')[0] == ingr['name']:
+                        parts = item.split(' ')
+                        existing_amount = int(parts[1])
+                        new_amount = int(ingr["amount"])
+                        updated_amount = existing_amount + new_amount
+                        parts[1] = str(updated_amount)
+                        updated_item = ' '.join(parts)
+                        shopping_list.remove(item)
+                        shopping_list.append(updated_item)
+                        break
+            else:
+                shopping_list.append(
+                    f'{ingr["name"]} '
+                    f'{ingr["amount"]} '
+                    f'{ingr["measurement_unit"]}'
+                )
+        if shopping_list:
+            shopping_list_text = f'Список покупок {self.request.user}:\n\n' + '\n'.join(shopping_list)
+            filename = f'{self.request.user.username}_shopping_list.txt'
+
+            # Используйте with open для создания и записи файла
+            with open(filename, 'w', encoding='utf-8') as file:
+                file.write(shopping_list_text)
+
+            # Создаем HTTP-ответ с файлом и явно указываем имя файла с расширением
+            response = HttpResponse(open(filename, 'rb').read(), content_type='text/plain')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+        else:
+        # Если список покупок пуст, верните сообщение об ошибке или другую обработку
+            return HttpResponse("Список покупок пуст")
