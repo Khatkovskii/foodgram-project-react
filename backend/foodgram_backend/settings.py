@@ -103,7 +103,7 @@ STATIC_ROOT = BASE_DIR / 'collected_static'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-DATA_ROOT = BASE_DIR / 'data'
+CSV_DIR = BASE_DIR / 'data'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
