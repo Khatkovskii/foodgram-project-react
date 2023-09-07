@@ -4,35 +4,36 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipes', '0007_rename_description_recipe_text'),
+        ("recipes", "0007_rename_description_recipe_text"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='ingredient',
-            old_name='unit',
-            new_name='measurement_unit',
+            model_name="ingredient",
+            old_name="unit",
+            new_name="measurement_unit",
         ),
         migrations.AddField(
-            model_name='recipe',
-            name='cooking_time',
-            field=models.PositiveSmallIntegerField(default=1, verbose_name='Время приготовления'),
+            model_name="recipe",
+            name="cooking_time",
+            field=models.PositiveSmallIntegerField(
+                default=1, verbose_name="Время приготовления"
+            ),
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='color',
-            field=models.CharField(max_length=7, verbose_name='Цвет HEX код'),
+            model_name="tag",
+            name="color",
+            field=models.CharField(max_length=7, verbose_name="Цвет HEX код"),
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='name',
+            model_name="tag",
+            name="name",
             field=models.CharField(db_index=True, max_length=200, unique=True),
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='slug',
+            model_name="tag",
+            name="slug",
             field=models.SlugField(max_length=200, unique=True),
         ),
     ]

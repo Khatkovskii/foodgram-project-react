@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipes', '0003_ingredientamount'),
+        ("recipes", "0003_ingredientamount"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ingredient',
-            name='unit',
-            field=models.CharField(max_length=200, verbose_name='Единица измерения'),
+            model_name="ingredient",
+            name="unit",
+            field=models.CharField(
+                max_length=200, verbose_name="Единица измерения"
+            ),
         ),
     ]
