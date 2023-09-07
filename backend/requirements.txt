@@ -10,3 +10,8 @@ psycopg2-binary==2.9.3
 drf-extra-fields==3.7.0
 django_filter==22.1
 django-import-export==3.2
+flake8-broken-line==0.6.0
+flake8-isort==6.0.0
+flake8-return==1.2.0
+flake8==5.0.4
+isort==5.11.4

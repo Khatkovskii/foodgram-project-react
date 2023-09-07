@@ -83,6 +83,7 @@ class UserViewSet(mixins.CreateModelMixin,
         permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
+        '''Вывод списка подписок'''
         queryset = User.objects.filter(following__user=request.user)
         pagin = self.paginate_queryset(queryset)
         serializer = FollowListSerializer(pagin, context={'request': request}, many=True)
@@ -91,6 +92,7 @@ class UserViewSet(mixins.CreateModelMixin,
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    '''Вьюсет для ингридиента '''
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly,)
@@ -98,6 +100,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    ''' Вьюсет для работы с Тэгами '''
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AdminOrReadOnly,)
@@ -105,6 +108,7 @@ class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.Retrieve
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    ''' Вьюсет для работы с рецептами '''
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (AuthorOrAdminOrReadOnly,)
@@ -112,18 +116,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = RecipeFilterSet
     filterset_class = RecipeFilterSet
-    
+
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return RecipeCreateSerializer
         if self.action in ('favorite', 'shopping_cart'):
             return RecipeMiniSerializer
         return RecipeSerializer
-    
+
     def get_queryset(self):
         user_id = self.request.user.pk
         return Recipe.objects.add_annotations(user_id)
-    
+
     @action(
         detail=True,
         methods=['POST'],
@@ -140,13 +144,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save()
         serializer = self.get_serializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     @favorite.mapping.delete
     def favorite_delete(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
         Favorite.objects.filter(user=request.user, recipe=recipe).delete()
         return Response('Рецепт успешно удален', status=status.HTTP_204_NO_CONTENT)
-    
+
     @action(
         detail=True,
         methods=['POST'],
@@ -163,7 +167,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save()
         serializer = self.get_serializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     @shopping_cart.mapping.delete
     def cart_delete(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
@@ -185,7 +189,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         shopping_list = []
         for ingr in ingredients:
             if ingr['name'] in [item.split(' ')[0] for item in shopping_list]:
-            # Ингредиент уже есть в списке покупок, нужно обновить его количество
                 for item in shopping_list:
                     if item.split(' ')[0] == ingr['name']:
                         parts = item.split(' ')
@@ -206,15 +209,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if shopping_list:
             shopping_list_text = f'Список покупок {self.request.user}:\n\n' + '\n'.join(shopping_list)
             filename = f'{self.request.user.username}_shopping_list.txt'
-
-            # Используйте with open для создания и записи файла
             with open(filename, 'w', encoding='utf-8') as file:
                 file.write(shopping_list_text)
-
-            # Создаем HTTP-ответ с файлом и явно указываем имя файла с расширением
             response = HttpResponse(open(filename, 'rb').read(), content_type='text/plain')
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
         else:
-        # Если список покупок пуст, верните сообщение об ошибке или другую обработку
             return HttpResponse("Список покупок пуст")
+        
+        # Пробовал кучу вариантов, ничего не работает, файл всё равно создаётся
+        # с другим именем - 'shopping-list'
