@@ -4,10 +4,11 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from users.models import User
 
-from recipes.models import Ingredient
+from recipes.models import Ingredient, Tag
 
 ModelsCSV = {
-    Ingredient: 'ingredients.csv'
+    Ingredient: 'ingredients.csv',
+    Tag: 'tags.csv',
 }
 
 
