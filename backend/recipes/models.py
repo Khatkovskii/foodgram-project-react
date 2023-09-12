@@ -1,8 +1,11 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.contrib.auth import get_user_model
 
 from api.params import MAX_AMOUNT, MIN_AMOUNT
-from users.models import User
+
+
+User = get_user_model()
 
 
 class Ingredient(models.Model):

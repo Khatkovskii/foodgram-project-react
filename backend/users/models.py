@@ -36,15 +36,16 @@ class User(AbstractUser):
         verbose_name="Статус пользователя в системе",
     )
 
-    @property
-    def is_admin(self):
-        """Проверка на администратора"""
-        return self.role == self.ADMIN or self.is_superuser
-
     class Meta:
         ordering = ("id",)
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+
+    @property
+    def is_admin(self):
+        """Проверка на администратора"""
+        return (self.role == self.ADMIN or self.is_superuser
+                or self.is_staff)
 
     def __str__(self) -> str:
         return self.username

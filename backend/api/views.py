@@ -16,7 +16,6 @@ from recipes.models import (
     Tag,
 )
 from users.models import Follow, User
-
 from .filters import RecipeFilterSet
 from .paginator import LimitedPagination
 from .permissions import AdminOrReadOnly, AuthorOrAdminOrReadOnly
@@ -255,8 +254,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 "Content-Disposition"
             ] = f'attachment; filename="{filename}"'
             return response
-        else:
-            return None
 
         # Пробовал кучу вариантов, ничего не работает, файл всё равно создаётся
         # с другим именем - 'shopping-list'

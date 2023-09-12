@@ -14,7 +14,6 @@ from recipes.models import (
     Tag,
 )
 from users.models import User
-
 from .params import MAX_AMOUNT, MIN_AMOUNT
 
 
@@ -41,7 +40,7 @@ class UserCreateSerializer(UserCreateSerializer):
         username = data.get("username")
         first_name = data.get("first_name")
         last_name = data.get("last_name")
-        forbidden_username = ["me", "Me", "ME"]
+        forbidden_username = ["me", "Me", "ME", "mE"]
         if self.initial_data.get("username") in forbidden_username:
             raise serializers.ValidationError(
                 f"username:{username} запрещен к использованию!"
@@ -69,7 +68,7 @@ class UserReadSerializer(UserSerializer):
 
     def get_is_subscribed(self, author):
         request = self.context.get("request")
-        if request and not request.user.is_anonymous:
+        if request and request.user.is_authenticated:
             return request.user.follower.filter(author=author).exists()
         return False
 
