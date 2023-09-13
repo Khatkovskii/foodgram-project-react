@@ -1,9 +1,8 @@
-from django.contrib.auth.password_validation import validate_password
 from django.core.validators import MaxValueValidator, MinValueValidator
-from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from django.contrib.auth import get_user_model
 
 from recipes.models import (
     Cart,
@@ -13,93 +12,11 @@ from recipes.models import (
     Recipe,
     Tag,
 )
-from users.models import User
+from users.serializers import UserReadSerializer
 from .params import MAX_AMOUNT, MIN_AMOUNT
 
 
-class UserCreateSerializer(UserCreateSerializer):
-    """Создание нового пользователя"""
-
-    class Meta:
-        model = User
-        fields = (
-            "id",
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "password",
-        )
-
-    def validate_password(self, value):
-        validate_password(value)
-        return value
-
-    def validate(self, data):
-        """Проверка данных"""
-        username = data.get("username")
-        first_name = data.get("first_name")
-        last_name = data.get("last_name")
-        forbidden_username = ["me", "Me", "ME", "mE"]
-        if self.initial_data.get("username") in forbidden_username:
-            raise serializers.ValidationError(
-                f"username:{username} запрещен к использованию!"
-            )
-        if not first_name:
-            raise serializers.ValidationError({"Это поле обязательно"})
-        if not last_name:
-            raise serializers.ValidationError({"Это поле обязательно"})
-        return data
-
-
-class UserReadSerializer(UserSerializer):
-    is_subscribed = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = (
-            "id",
-            "email",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-        )
-
-    def get_is_subscribed(self, author):
-        request = self.context.get("request")
-        if request and request.user.is_authenticated:
-            return request.user.follower.filter(author=author).exists()
-        return False
-
-
-class SetPasswordSerializer(serializers.Serializer):
-    """Сериализатор изменения пароля"""
-
-    current_password = serializers.CharField()
-    new_password = serializers.CharField()
-
-    def validate_new_password(self, value):
-        validate_password(value)
-        return value
-
-    def update(self, instance, validated_data):
-        current_password = validated_data.get("current_password")
-        new_password = validated_data.get("new_password")
-        if not instance.check_password(current_password):
-            raise serializers.ValidationError(
-                {"current_password": "Пароль неверный"}
-            )
-        if current_password == new_password:
-            raise serializers.ValidationError(
-                {
-                    "new_password": "Новый пароль должен отличаться"
-                    "от предидущего"
-                }
-            )
-        instance.set_password(new_password)
-        instance.save()
-        return validated_data
+User = get_user_model()
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -251,6 +168,20 @@ class RecipeCreateSerializer(RecipeSerializer):
             raise serializers.ValidationError(
                 {"error": "Ингредиенты должны быть уникальными"}
             )
+        tags = data.get("tags")
+        if not tags:
+            raise serializers.ValidationError(
+                {"error": "Должен быть хотябы 1 тег"}
+            )
+        if len(tags) != len(set(tags)):
+            raise serializers.ValidationError(
+                {"error": "Тэги должны быть уникальными"}
+            )
+        cooking_time = data.get("cooking_time")
+        if cooking_time <= 0:
+            raise serializers.ValidationError(
+                {"error": "Время приготовление не может быть меньше 1 минуты"}
+            )
         return data
 
     def to_representation(self, instance):
@@ -307,84 +238,3 @@ class CartSerializer(serializers.ModelSerializer):
                 message="Рецепт уже в корзине",
             )
         ]
-
-
-class FollowAuthorSerializer(serializers.ModelSerializer):
-    """Сериализатор подписки/отписки на автора"""
-
-    author = serializers.ReadOnlyField()
-    email = serializers.ReadOnlyField()
-    username = serializers.ReadOnlyField()
-    is_subscribed = serializers.SerializerMethodField()
-    recipes = RecipeMiniSerializer(read_only=True, many=True)
-    recipes_count = serializers.IntegerField(
-        source="recipes.count", read_only=True
-    )
-
-    class Meta:
-        model = User
-        fields = (
-            "author",
-            "id",
-            "email",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-            "recipes",
-            "recipes_count",
-        )
-
-    def validate(self, data):
-        user = self.context["request"].user
-        author = self.context["author"]
-        if user == author:
-            raise serializers.ValidationError(
-                {"Невозможно подписаться на самого себя."}
-            )
-        if user.follower.filter(author=author).exists():
-            raise serializers.ValidationError({"Вы уже подписаны на автора"})
-        return data
-
-    def get_is_subscribed(self, author):
-        user = self.context["request"].user
-        return (
-            user.is_authenticated
-            and user.follower.filter(author=author).exists()
-        )
-
-
-class FollowListSerializer(serializers.ModelSerializer):
-    """Сериализатор списка подписок на авторов"""
-
-    is_subscribed = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.IntegerField(
-        source="recipes.count", read_only=True
-    )
-
-    class Meta:
-        model = User
-        fields = (
-            "id",
-            "email",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-            "recipes",
-            "recipes_count",
-        )
-
-    def get_is_subscribed(self, author):
-        user = self.context["request"].user
-        return (
-            user.is_authenticated
-            and user.follower.filter(author=author).exists()
-        )
-
-    def get_recipes(self, obj):
-        """Вывод списка рецептов"""
-        recipes = obj.recipes.all()
-        serializer = RecipeSerializer(recipes, many=True, read_only=True)
-        return serializer.data
