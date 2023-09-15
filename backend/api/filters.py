@@ -1,10 +1,9 @@
-from django_filters import FilterSet, filters
 from django.contrib.auth import get_user_model
+from django_filters import FilterSet, filters
 
 from recipes.models import Recipe, Tag
 
-
-User = get_user_model()
+UserModel = get_user_model()
 
 
 class RecipeFilterSet(FilterSet):
@@ -13,7 +12,7 @@ class RecipeFilterSet(FilterSet):
         queryset=Tag.objects.all(),
         to_field_name="slug",
     )
-    author = filters.ModelChoiceFilter(queryset=User.objects.all())
+    author = filters.ModelChoiceFilter(queryset=UserModel.objects.all())
     is_favorited = filters.NumberFilter(method="get_is_favorited")
     is_in_shopping_cart = filters.NumberFilter(
         method="get_is_in_shopping_cart"
