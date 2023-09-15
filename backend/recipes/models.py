@@ -223,5 +223,6 @@ class Cart(models.Model):
                 name="unique_cart",
             )
         ]
+
     def __str__(self) -> str:
         return f"Корзина для {self.user.username}: {self.recipe.name}"
