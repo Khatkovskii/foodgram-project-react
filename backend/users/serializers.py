@@ -1,7 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
 
 
 UserModel = get_user_model()
@@ -30,8 +30,7 @@ class UserCreateSerializer(UserCreateSerializer):
         username = data.get("username")
         first_name = data.get("first_name")
         last_name = data.get("last_name")
-        forbidden_username = "me"
-        if username.lower() == forbidden_username:
+        if username.lower() == "me":
             raise serializers.ValidationError(
                 f"username:{username} запрещен к использованию!"
             )

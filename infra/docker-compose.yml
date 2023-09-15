@@ -8,14 +8,12 @@ volumes:
 services:
 
   foodgram_db:
-    # Из какого образа запустить контейнер:
     image: postgres:13.10
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
 
   backend:
-    # Из какого Dockerfile собирать образ для этого контейнера:
     build: ../backend/
     env_file: .env
     volumes:
@@ -23,7 +21,7 @@ services:
       - media:/app/media
     depends_on:
       - foodgram_db
-  
+
   frontend:
     build:
       context: ../frontend

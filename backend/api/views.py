@@ -7,16 +7,26 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from recipes.models import (Cart, Favorite, Ingredient, IngredientAmount,
-                            Recipe, Tag)
-
+from recipes.models import (
+    Cart,
+    Favorite,
+    Ingredient,
+    IngredientAmount,
+    Recipe,
+    Tag
+)
 from .filters import RecipeFilterSet
 from .paginator import LimitedPagination
 from .permissions import AdminOrReadOnly, AuthorOrAdminOrReadOnly
-from .serializers import (CartSerializer, FavoriteSerializer,
-                          IngredientSerializer, RecipeCreateSerializer,
-                          RecipeMiniSerializer, RecipeSerializer,
-                          TagSerializer)
+from .serializers import (
+    CartSerializer,
+    FavoriteSerializer,
+    IngredientSerializer,
+    RecipeCreateSerializer,
+    RecipeMiniSerializer,
+    RecipeSerializer,
+    TagSerializer
+)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
