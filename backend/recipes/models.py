@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from api.params import MAX_AMOUNT, MIN_AMOUNT
 
 
-User = get_user_model()
+UserModel = get_user_model()
 
 
 class Ingredient(models.Model):
@@ -82,7 +82,7 @@ class Recipe(models.Model):
         max_length=200, db_index=True, verbose_name="Рецепт"
     )
     author = models.ForeignKey(
-        User,
+        UserModel,
         on_delete=models.CASCADE,
         related_name="recipes",
         verbose_name="Автор",
@@ -169,7 +169,7 @@ class Favorite(models.Model):
         on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
-        User,
+        UserModel,
         verbose_name="Пользователь",
         related_name="favorite",
         on_delete=models.CASCADE,
@@ -202,7 +202,7 @@ class Cart(models.Model):
         related_name="cart",
     )
     user = models.ForeignKey(
-        User,
+        UserModel,
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
         related_name="cart",
@@ -223,3 +223,5 @@ class Cart(models.Model):
                 name="unique_cart",
             )
         ]
+    def __str__(self) -> str:
+        return f"Корзина для {self.user.username}: {self.recipe.name}"

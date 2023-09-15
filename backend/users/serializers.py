@@ -4,14 +4,14 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
 
-User = get_user_model()
+UserModel = get_user_model()
 
 
 class UserCreateSerializer(UserCreateSerializer):
     """Создание нового пользователя"""
 
     class Meta:
-        model = User
+        model = UserModel
         fields = (
             "id",
             "username",
@@ -30,8 +30,8 @@ class UserCreateSerializer(UserCreateSerializer):
         username = data.get("username")
         first_name = data.get("first_name")
         last_name = data.get("last_name")
-        forbidden_username = ["me", "Me", "ME", "mE"]
-        if self.initial_data.get("username") in forbidden_username:
+        forbidden_username = "me"
+        if username.lower() == forbidden_username:
             raise serializers.ValidationError(
                 f"username:{username} запрещен к использованию!"
             )
@@ -46,7 +46,7 @@ class UserReadSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = User
+        model = UserModel
         fields = (
             "id",
             "email",
@@ -104,7 +104,7 @@ class FollowAuthorSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = User
+        model = UserModel
         fields = (
             "author",
             "id",
@@ -151,7 +151,7 @@ class FollowListSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = User
+        model = UserModel
         fields = (
             "id",
             "email",

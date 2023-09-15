@@ -1,22 +1,15 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from django.contrib.auth import get_user_model
 
-from recipes.models import (
-    Cart,
-    Favorite,
-    Ingredient,
-    IngredientAmount,
-    Recipe,
-    Tag,
-)
+from recipes.models import (Cart, Favorite, Ingredient, IngredientAmount,
+                            Recipe, Tag)
 from users.serializers import UserReadSerializer
 from .params import MAX_AMOUNT, MIN_AMOUNT
 
-
-User = get_user_model()
+UserModel = get_user_model()
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -192,7 +185,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
     """Сериализатор избранных рецептов"""
 
     user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), write_only=True
+        queryset=UserModel.objects.all(), write_only=True
     )
     recipe = serializers.PrimaryKeyRelatedField(
         queryset=Recipe.objects.all(), write_only=True
@@ -222,7 +215,7 @@ class CartSerializer(serializers.ModelSerializer):
     """Сериализатор корзины покупок"""
 
     user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), write_only=True
+        queryset=UserModel.objects.all(), write_only=True
     )
     recipe = serializers.PrimaryKeyRelatedField(
         queryset=Recipe.objects.all(), write_only=True
