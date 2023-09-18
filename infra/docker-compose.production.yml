@@ -14,18 +14,16 @@ services:
       - pg_data:/var/lib/postgresql/data
 
   backend:
-    build: ../backend/
+    image: khatkovskii/foodgram_backend
     env_file: .env
     volumes:
       - static:/backend_static
       - media:/app/media
     depends_on:
       - foodgram_db
-  
+
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: khatkovskii/foodgram_frontend
     volumes:
       - ../frontend/:/app/result_build/
 
