@@ -13,7 +13,7 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # ALLOWED_HOSTS = os.environ.get(
 #     'ALLOWED_HOSTS', default='localhost').split(', ')
-ALLOWED_HOSTS=['1.55.176.76', '127.0.0.1', 'localhost', 'foodhate.hopto.org']
+ALLOWED_HOSTS = ['1.55.176.76', '127.0.0.1', 'localhost', 'foodhate.hopto.org']
 
 
 INSTALLED_APPS = [
