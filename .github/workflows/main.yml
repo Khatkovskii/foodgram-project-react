@@ -93,7 +93,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "infra/docker-compose.yml"
+          source: "docker-compose.yml"
           target: "foodgram/infra"
       - name: Copy nginx.production.yml via ssh
         uses: appleboy/scp-action@v0.1.3
