@@ -1,3 +1,4 @@
+![workflow](https://github.com/Khatkovskii/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 # Проект продуктовый помощник Foodgram
 
 Foodgram - продуктовый помощник, позволяет публиковать рецепты,
