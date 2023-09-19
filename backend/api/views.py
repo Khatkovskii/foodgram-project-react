@@ -32,7 +32,6 @@ from .serializers import (
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для ингридиента"""
 
-    # queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly,)
     pagination_class = None
