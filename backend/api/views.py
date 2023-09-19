@@ -7,25 +7,40 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from recipes.models import (Cart, Favorite, Ingredient, IngredientAmount,
-                            Recipe, Tag)
-
+from recipes.models import (
+    Cart,
+    Favorite,
+    Ingredient,
+    IngredientAmount,
+    Recipe,
+    Tag
+)
 from .filters import RecipeFilterSet
 from .paginator import LimitedPagination
 from .permissions import AdminOrReadOnly, AuthorOrAdminOrReadOnly
-from .serializers import (CartSerializer, FavoriteSerializer,
-                          IngredientSerializer, RecipeCreateSerializer,
-                          RecipeMiniSerializer, RecipeSerializer,
-                          TagSerializer)
+from .serializers import (
+    CartSerializer,
+    FavoriteSerializer,
+    IngredientSerializer,
+    RecipeCreateSerializer,
+    RecipeMiniSerializer,
+    RecipeSerializer,
+    TagSerializer
+)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для ингридиента"""
 
-    queryset = Ingredient.objects.all()
+    # queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly,)
     pagination_class = None
+
+    def get_queryset(self):
+        query = self.request.query_params.get('name', '')
+        queryset = Ingredient.objects.filter(name__icontains=query)
+        return queryset
 
 
 class TagBaseViewSet(
@@ -160,6 +175,3 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 "Content-Disposition"
             ] = f'attachment; filename="{filename}"'
             return response
-
-        # Пробовал кучу вариантов, ничего не работает, файл всё равно создаётся
-        # с другим именем - 'shopping-list'
