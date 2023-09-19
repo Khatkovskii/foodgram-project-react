@@ -32,10 +32,15 @@ from .serializers import (
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для ингридиента"""
 
-    queryset = Ingredient.objects.all()
+    # queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly,)
     pagination_class = None
+    
+    def get_queryset(self):
+        query = self.request.query_params.get('name', '')
+        queryset = Ingredient.objects.filter(name__icontains=query)
+        return queryset
 
 
 class TagBaseViewSet(
@@ -170,6 +175,3 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 "Content-Disposition"
             ] = f'attachment; filename="{filename}"'
             return response
-
-        # Пробовал кучу вариантов, ничего не работает, файл всё равно создаётся
-        # с другим именем - 'shopping-list'
