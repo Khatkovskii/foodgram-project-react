@@ -28,8 +28,17 @@ class UserCreateSerializer(UserCreateSerializer):
     def validate(self, data):
         """Проверка данных"""
         username = data.get("username")
+        email = data.get("email")
         first_name = data.get("first_name")
         last_name = data.get("last_name")
+        if UserModel.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                f"email:{email} уже зарегестрирован"
+            )
+        if UserModel.objects.filter(username=username).exists():
+            raise serializers.ValidationError(
+                f"username:{username} уже зарегистрирован"
+            )
         if username.lower() == "me":
             raise serializers.ValidationError(
                 f"username:{username} запрещен к использованию!"
