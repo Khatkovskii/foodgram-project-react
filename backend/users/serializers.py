@@ -31,11 +31,11 @@ class UserCreateSerializer(UserCreateSerializer):
         email = data.get("email")
         first_name = data.get("first_name")
         last_name = data.get("last_name")
-        if UserModel.objects.filter(email=email).exists():
+        if UserModel.objects.filter(email__iexact=email).exists():
             raise serializers.ValidationError(
                 f"email:{email} уже зарегестрирован"
             )
-        if UserModel.objects.filter(username=username).exists():
+        if UserModel.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError(
                 f"username:{username} уже зарегистрирован"
             )
