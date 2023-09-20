@@ -26,7 +26,8 @@ class UserCreateSerializer(UserCreateSerializer):
         return value
 
     def validate(self, data):
-        """Проверка данных"""
+        """Проверка вводимых данных при регистрации"""
+        
         username = data.get("username")
         email = data.get("email")
         first_name = data.get("first_name")
