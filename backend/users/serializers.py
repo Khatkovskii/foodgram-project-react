@@ -182,6 +182,6 @@ class FollowListSerializer(serializers.ModelSerializer):
     def get_recipes(self, obj):
         """Вывод списка рецептов"""
         from api.serializers import RecipeSerializer
-        recipes = obj.recipes.all()
+        recipes = obj.recipes.all().order_by('-pub_date')[:3]
         serializer = RecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data
